@@ -1,0 +1,21 @@
+
+image:
+  repository: dazdaz/sonic
+
+service:
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: sonic.lazos.me
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: lazos-me-sonic-tls
+      hosts:
+        - sonic.lazos.me

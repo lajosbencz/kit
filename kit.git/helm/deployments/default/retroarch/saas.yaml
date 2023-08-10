@@ -1,0 +1,21 @@
+
+image:
+  repository: inglebard/retroarch-web
+
+service:
+  targetPort: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: retroarch.lazos.me
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: lazos-me-retroarch-tls
+      hosts:
+        - retroarch.lazos.me

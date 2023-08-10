@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kit
+  namespace: kit-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kit
+  template:
+    metadata:
+      labels:
+        app: kit
+    spec:
+      serviceAccountName: kit-admin
+      containers:
+        - name: kit
+          image: ghcr.io/lajosbencz/kit:latest

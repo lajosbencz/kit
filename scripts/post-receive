@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+cat | php /var/kit/scripts/post-receive.php
+exit $?
