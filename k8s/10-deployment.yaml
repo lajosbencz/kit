@@ -13,7 +13,9 @@ spec:
       labels:
         app: kit
     spec:
-      serviceAccountName: kit-admin
+      serviceAccountName: kit-account
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest
+          ports:
+            - containerPort: 22
