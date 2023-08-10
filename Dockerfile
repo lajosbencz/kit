@@ -18,6 +18,8 @@ ENV GIT_PASSWORD=${GIT_PASSWORD}
 ENV GITHUB_USER=${GITHUB_USER}
 #ENV REPO_PATH=${REPO_PATH}
 
+ENV KUBECONFIG=/var/run/secrets/kubernetes.io/serviceaccount/token
+
 RUN set -ex; \
     apk add --no-cache \
         openssl \
