@@ -51,7 +51,7 @@ ChallengeResponseAuthentication no\n\
 PermitRootLogin no\n\
 AllowUsers git\n\
 Match user git\n\
-   AuthorizedKeysFile ${PATH_AUTHK}/authorized_keys\n\
+   AuthorizedKeysFile ${PATH_AUTHK}/own/authorized_keys\n\
 " \
     >> /etc/ssh/sshd_config; \
     \
