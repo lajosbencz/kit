@@ -20,7 +20,7 @@ spec:
           command: ["sh", "-c", "if [ ! -f /kit.git.pvc/HEAD ]; then cp -r /kit.git /kit.git.pvc; fi"]
           volumeMounts:
             - name: kit-volume
-              mountPath: /kit.git.pvc
+              mountPath: /var/kit/kit.git.pvc
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest

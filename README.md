@@ -1,2 +1,4 @@
-# kit
-Kubernetes Infrastructure Tool
+# KIT
+
+### Kubernetes Infrastructure Kit
+

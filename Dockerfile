@@ -1,22 +1,16 @@
 FROM alpine:3.18
 
-ARG GIT_USER=git
-ARG GIT_GROUP=git
-ARG GIT_PASSWORD="12345"
-ARG GIT_DATA=/var/kit
-ARG GIT_CERTS=${GIT_DATA}/certs
-ARG GIT_SSH=${GIT_DATA}/ssh
 ARG GITHUB_USER=lajosbencz
-ARG REPO_PATH=/kit.git
+ARG USER=git
+ARG GROUP=git
+ARG PASSWORD="12345"
+ARG PATH_KIT=/var/kit
+ARG PATH_CERTS=${PATH_KIT}/certs
+ARG PATH_SSH=${PATH_KIT}/ssh
+ARG PATH_MOUNT=${PATH_KIT}/mount
+ARG PATH_REPO=${PATH_MOUNT}/kit.git
 
-ENV GIT_USER=${GIT_USER}
-ENV GIT_GROUP=${GIT_GROUP}
-ENV GIT_PASSWORD=${GIT_PASSWORD}
-#ENV GIT_DATA=${GIT_DATA}
-#ENV GIT_CERTS=${GIT_CERTS}
-#ENV GIT_SSH=${GIT_SSH}
-ENV GITHUB_USER=${GITHUB_USER}
-#ENV REPO_PATH=${REPO_PATH}
+ENV KUBECONFIG = ${PATH_KIT}/kubeconfig
 
 RUN set -ex; \
     apk add --no-cache \
@@ -38,66 +32,66 @@ RUN set -ex; \
     curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh
 
 RUN set -ex; \
-    addgroup "${GIT_GROUP}"; \
+    addgroup "${GROUP}"; \
     adduser \
         --gecos "Git User" \
-        --ingroup "${GIT_GROUP}" \
-        --home "${REPO_PATH}" \
+        --ingroup "${GROUP}" \
+        --home "${PATH_MOUNT}" \
         --disabled-password \
         --shell "$(which git-shell)" \
-        "${GIT_USER}" ; \
-    echo "${GIT_USER}:${GIT_PASSWORD}" | chpasswd; \
+        "${USER}" ; \
+    echo "${USER}:${PASSWORD}" | chpasswd; \
     echo -e "\
 PasswordAuthentication no\n\
 Match user git\n\
-   AuthorizedKeysFile ${GIT_SSH}/authorized_keys\n\
+   AuthorizedKeysFile ${PATH_SSH}/authorized_keys\n\
 " \
     >> /etc/ssh/sshd_config
 
 RUN set -ex; \
-    mkdir -p ${GIT_CERTS} \
-             ${GIT_SSH} \
-             ${REPO_PATH}; \
-    cd ${REPO_PATH}; \
+    mkdir -p ${PATH_CERTS} \
+             ${PATH_SSH} \
+             ${PATH_REPO}; \
+    cd ${PATH_REPO}; \
     git init --bare
-
-#COPY ./scripts/post-receive ${REPO_PATH}/hooks/
-#RUN chmod +x ${REPO_PATH}/hooks/post-receive
-RUN ln -s ${GIT_DATA}/scripts/post-receive ${REPO_PATH}/hooks/post-receive
-
-VOLUME "${GIT_CERTS}"
-VOLUME "${GIT_SSH}"
-VOLUME "${REPO_PATH}"
-
-WORKDIR ${GIT_DATA}
-
-COPY ./scripts ./scripts
-COPY ./scripts/kubeconfig ${GIT_DATA}/.kube/config
 
 RUN if [ "x${GITHUB_USER}" = "x" ]; then exit 0; fi; \
     echo "Pulling keys of GitHub user ${GITHUB_USER}"; \
     set -ex; \
     ssh-keygen -A; \
-    touch ${GIT_SSH}/authorized_keys; \
-    curl -f https://github.com/${GITHUB_USER}.keys | tee -a ${GIT_SSH}/authorized_keys
+    touch ${PATH_SSH}/authorized_keys; \
+    curl -f https://github.com/${GITHUB_USER}.keys | tee -a ${PATH_SSH}/authorized_keys
+
+#COPY ./scripts/post-receive ${REPO_PATH}/hooks/
+#RUN chmod +x ${REPO_PATH}/hooks/post-receive
+RUN ln -s ${PATH_KIT}/scripts/post-receive ${PATH_REPO}/hooks/post-receive
+
+VOLUME "${PATH_CERTS}"
+VOLUME "${PATH_SSH}"
+VOLUME "${PATH_MOUNT}"
+
+WORKDIR ${PATH_KIT}
+
+COPY ./scripts ./scripts
+COPY ./scripts/kubeconfig ${PATH_KIT}/
 
 RUN set -ex; \
-    git clone ${REPO_PATH} ${GIT_DATA}/wd
+    git clone ${PATH_REPO} ${PATH_KIT}/wd
 
-COPY ./kit.git/ ${GIT_DATA}/wd/
+COPY ./kit.git/ ${PATH_KIT}/wd/
 
 RUN set -ex; \
     git config --global user.email "kit@lazos.me"; \
     git config --global user.name "kit"; \
-    cd ${GIT_DATA}/wd; \
+    cd ${PATH_KIT}/wd; \
     git add .; \
     git commit -m 'kit'; \
     git push; \
-    rm -fr ${GIT_DATA}/wd
+    rm -fr ${PATH_KIT}/wd
 
-WORKDIR ${GIT_DATA}
+WORKDIR ${PATH_MOUNT}
 
-RUN chown -R ${GIT_USER}:${GIT_GROUP} ${GIT_DATA} ${REPO_PATH}
+RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
 
 EXPOSE 22
 
