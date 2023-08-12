@@ -120,7 +120,13 @@ try {
     }
 
     foreach ($allNamespaces as $namespace) {
-        $execCmd("kubectl create namespace ${namespace}");
+        try {
+            $execCmd("kubectl create namespace ${namespace}");
+        } catch(\Throwable $e) {
+            if(strpos($e->getMessage(), 'AlreadyExists') === false) {
+                throw $e;
+            }
+        }
     }
 
     $oldPath = $PATH_CLONE . '/old';
