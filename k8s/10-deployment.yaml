@@ -19,6 +19,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
+        fsGroup: 1000
       initContainers:
         - name: init-pvc
           image: ghcr.io/lajosbencz/kit:latest
@@ -40,10 +41,14 @@ spec:
           volumeMounts:
             - name: kit-hostkeys
               mountPath: /var/kit/hostkeys
+              mountPropagation: HostToContainer
             - name: kit-authkeys
-              mountPath: /var/kit/authkeys
+              mountPath: /var/kit/authkeys/authorized_keys
+              mountPropagation: HostToContainer
+              subPath: authorized_keys
             - name: kit-volume
               mountPath: /var/kit/pvc
+              mountPropagation: HostToContainer
           ports:
             - containerPort: 2222
       volumes:
@@ -53,7 +58,7 @@ spec:
         - name: kit-hostkeys
           secret:
             secretName: kit-hostkeys
-            defaultMode: 0600
+            defaultMode: 416
             items:
               - key: ssh_host_rsa_key
                 path: ssh_host_rsa_key
@@ -64,7 +69,7 @@ spec:
         - name: kit-authkeys
           configMap:
             name: kit-authkeys
-            defaultMode: 0600
+            defaultMode: 416
             items:
               - key: authorized_keys
                 path: authorized_keys
