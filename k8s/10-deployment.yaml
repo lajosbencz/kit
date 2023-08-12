@@ -44,7 +44,7 @@ spec:
             - name: kit-volume
               mountPath: /var/kit/pvc
           ports:
-            - containerPort: 22
+            - containerPort: 2222
       volumes:
         - name: kit-volume
           persistentVolumeClaim:

@@ -66,7 +66,7 @@ COPY --chmod=600 ./scripts/kubeconfig ${PATH_KIT}/
 
 RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
 
-EXPOSE 22
+EXPOSE 2222
 
 VOLUME "${PATH_HOSTK}"
 VOLUME "${PATH_AUTHK}"
