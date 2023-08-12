@@ -16,9 +16,6 @@ spec:
     spec:
       serviceAccountName: kit-account
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
         fsGroup: 1000
       initContainers:
         - name: init-pvc
@@ -38,6 +35,10 @@ spec:
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
           volumeMounts:
             - name: kit-hostkeys
               mountPath: /var/kit/hostkeys

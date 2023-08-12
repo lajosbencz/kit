@@ -73,9 +73,9 @@ COPY --chmod=600 ./scripts/kubeconfig ${PATH_KIT}/
 
 RUN set -ex; \
     chown -R ${USER}:${GROUP} ${PATH_KIT}; \
-    chmod -R 600 ${PATH_AUTHK}; \
-    chmod -R 600 ${PATH_HOSTK}; \
-    chmod -R 600 ${PATH_SSH}
+    chmod -R 700 ${PATH_AUTHK}; \
+    chmod -R 700 ${PATH_HOSTK}; \
+    chmod -R 700 ${PATH_SSH}
 
 USER 1000:1000
 
