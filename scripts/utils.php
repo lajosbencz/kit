@@ -12,7 +12,7 @@ function parse_env($envFilePath)
             continue;
         }
         $l = "$key=$val";
-        echo "env line: ", $l, PHP_EOL;
+//        echo "env line: ", $l, PHP_EOL;
         $_ENV[$key] = $val;
         putenv($l);
     }

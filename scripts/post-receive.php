@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ERROR);
+
 require_once __DIR__ . '/utils.php';
 
 const REF_NAME = 'refs/heads/master';
@@ -133,11 +135,11 @@ try {
         }
     }
 
-//    var_dump([
-//        'charts' => $changedCharts,
-//        'helms' => $changedHelms,
-//        'k8s' => $changedK8s,
-//    ]);
+    var_dump([
+        'charts' => $changedCharts,
+        'helms' => $changedHelms,
+        'k8s' => $changedK8s,
+    ]);
 
     foreach ($changedHelms as $namespace => $changedHelm) {
         foreach ($changedHelm as $name => $chartNames) {
