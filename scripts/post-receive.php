@@ -10,7 +10,7 @@ parse_env("/var/kit/env");
 
 $PATH_KIT = getenv('PATH_KIT') ?: '/var/kit';
 $PATH_PVC = getenv('PATH_PVC') ?: $PATH_KIT . '/pvc';
-$PATH_REPO = getenv('PATH_PVC') ?: $PATH_PVC . '/kit.git';
+$PATH_REPO = getenv('PATH_REPO') ?: $PATH_PVC . '/kit.git';
 $PATH_CLONE = $PATH_KIT . '/clone';
 
 $lockN = 0;
