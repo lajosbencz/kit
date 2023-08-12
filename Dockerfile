@@ -4,12 +4,14 @@ ARG USER=git
 ARG GROUP=git
 ARG PASSWORD="12345"
 ARG PATH_KIT=/var/kit
-ARG PATH_CFG=${PATH_KIT}/cfg
+ARG PATH_HOSTK=${PATH_KIT}/hostkeys
+ARG PATH_AUTHK=${PATH_KIT}/authkeys
 ARG PATH_PVC=${PATH_KIT}/pvc
 ARG PATH_REPO=${PATH_PVC}/kit.git
 
 ENV PATH_KIT=${PATH_KIT}
-ENV PATH_CFG=${PATH_CFG}
+ENV PATH_HOSTK=${PATH_HOSTK}
+ENV PATH_AUTHK=${PATH_AUTHK}
 ENV PATH_PVC=${PATH_PVC}
 ENV PATH_REPO=${PATH_REPO}
 
@@ -18,7 +20,8 @@ ENV KUBECONFIG=${PATH_KIT}/kubeconfig
 WORKDIR /root
 
 RUN set -ex; \
-    mkdir -p ${PATH_CFG} \
+    mkdir -p ${PATH_HOSTK} \
+             ${PATH_AUTHK} \
              ${PATH_REPO}; \
     apk add --no-cache \
         openssl \
@@ -46,16 +49,14 @@ RUN set -ex; \
         "${USER}" ; \
     echo "${USER}:${PASSWORD}" | chpasswd; \
     echo -e "\
-HostKey ${PATH_CFG}/ssh_host_rsa_key\n\
-HostKey ${PATH_CFG}/ssh_host_ecdsa_key\n\
-HostKey ${PATH_CFG}/ssh_host_ed25519_key\n\
+HostKey ${PATH_HOSTK}/ssh_host_rsa_key\n\
+HostKey ${PATH_HOSTK}/ssh_host_ecdsa_key\n\
+HostKey ${PATH_HOSTK}/ssh_host_ed25519_key\n\
 PasswordAuthentication no\n\
 Match user git\n\
-   AuthorizedKeysFile ${PATH_CFG}/authorized_keys\n\
+   AuthorizedKeysFile ${PATH_AUTHK}/authorized_keys\n\
 " \
-    >> /etc/ssh/sshd_config; \
-   ssh-keygen -A; \
-   mv /etc/ssh/ssh_host* ${PATH_CFG}
+    >> /etc/ssh/sshd_config
 
 RUN git init --bare ${PATH_REPO}
 
@@ -68,7 +69,8 @@ RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
 
 EXPOSE 22
 
-VOLUME "${PATH_CFG}"
+VOLUME "${PATH_HOSTK}"
+VOLUME "${PATH_AUTHK}"
 VOLUME "${PATH_PVC}"
 
 CMD [ "multirun", "${PATH_KIT}/scripts/cmd.sh" ]
