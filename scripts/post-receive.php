@@ -64,7 +64,7 @@ try {
             continue;
         }
         $commitMsg = `git log -1 --pretty=format:'%s' "$newRef"`;
-        $cmdDiff = `git diff-tree --no-commit-id --name-only -r "$newRef"`;
+        $cmdDiff = `git show --pretty="" --name-only "$newRef"`;
         foreach (explode("\n", $cmdDiff) as $filePath) {
             $filePath = trim($filePath);
             if (!$filePath) {
@@ -135,11 +135,11 @@ try {
         }
     }
 
-    var_dump([
-        'charts' => $changedCharts,
-        'helms' => $changedHelms,
-        'k8s' => $changedK8s,
-    ]);
+//    var_dump([
+//        'charts' => $changedCharts,
+//        'helms' => $changedHelms,
+//        'k8s' => $changedK8s,
+//    ]);
 
     foreach ($changedHelms as $namespace => $changedHelm) {
         foreach ($changedHelm as $name => $chartNames) {
