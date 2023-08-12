@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 
 . /var/kit/env
+echo "sh env:", "$KUBECONFIG"
 cat | php /var/kit/scripts/post-receive.php
 exit $?
