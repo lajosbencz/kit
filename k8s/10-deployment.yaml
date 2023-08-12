@@ -41,8 +41,17 @@ spec:
             runAsGroup: 1000
           volumeMounts:
             - name: kit-hostkeys
-              mountPath: /var/kit/hostkeys
+              mountPath: /var/kit/hostkeys/ssh_host_rsa_key
               mountPropagation: HostToContainer
+              subPath: ssh_host_rsa_key
+            - name: kit-hostkeys
+              mountPath: /var/kit/hostkeys/ssh_host_ed25519_key
+              mountPropagation: HostToContainer
+              subPath: ssh_host_ed25519_key
+            - name: kit-hostkeys
+              mountPath: /var/kit/hostkeys/ssh_host_ecdsa_key
+              mountPropagation: HostToContainer
+              subPath: ssh_host_ecdsa_key
             - name: kit-authkeys
               mountPath: /var/kit/authkeys/authorized_keys
               mountPropagation: HostToContainer
@@ -59,18 +68,8 @@ spec:
         - name: kit-hostkeys
           secret:
             secretName: kit-hostkeys
-            defaultMode: 416
-            items:
-              - key: ssh_host_rsa_key
-                path: ssh_host_rsa_key
-              - key: ssh_host_ed25519_key
-                path: ssh_host_ed25519_key
-              - key: ssh_host_ecdsa_key
-                path: ssh_host_ecdsa_key
+            defaultMode: 384
         - name: kit-authkeys
           configMap:
             name: kit-authkeys
-            defaultMode: 416
-            items:
-              - key: authorized_keys
-                path: authorized_keys
+            defaultMode: 384

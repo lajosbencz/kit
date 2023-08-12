@@ -6,14 +6,12 @@ ARG PASSWORD="12345"
 ARG PATH_KIT=/var/kit
 ARG PATH_HOSTK=${PATH_KIT}/hostkeys
 ARG PATH_AUTHK=${PATH_KIT}/authkeys
-ARG PATH_SSH=${PATH_KIT}/ssh
 ARG PATH_PVC=${PATH_KIT}/pvc
 ARG PATH_REPO=${PATH_PVC}/kit.git
 
 ENV PATH_KIT=${PATH_KIT}
 ENV PATH_HOSTK=${PATH_HOSTK}
 ENV PATH_AUTHK=${PATH_AUTHK}
-ENV PATH_SSH=${PATH_SSH}
 ENV PATH_PVC=${PATH_PVC}
 ENV PATH_REPO=${PATH_REPO}
 
@@ -24,7 +22,6 @@ WORKDIR /root
 RUN set -ex; \
     mkdir -p ${PATH_HOSTK} \
              ${PATH_AUTHK} \
-             ${PATH_SSH} \
              ${PATH_REPO}; \
     apk add --no-cache \
         openssl \
@@ -54,7 +51,7 @@ ChallengeResponseAuthentication no\n\
 PermitRootLogin no\n\
 AllowUsers git\n\
 Match user git\n\
-   AuthorizedKeysFile ${PATH_SSH}/authorized_keys\n\
+   AuthorizedKeysFile ${PATH_AUTHK}/authorized_keys\n\
 " \
     >> /etc/ssh/sshd_config; \
     \
@@ -74,8 +71,7 @@ COPY --chmod=600 ./scripts/kubeconfig ${PATH_KIT}/
 RUN set -ex; \
     chown -R ${USER}:${GROUP} ${PATH_KIT}; \
     chmod -R 700 ${PATH_AUTHK}; \
-    chmod -R 700 ${PATH_HOSTK}; \
-    chmod -R 700 ${PATH_SSH}
+    chmod -R 700 ${PATH_HOSTK};
 
 USER 1000:1000
 
