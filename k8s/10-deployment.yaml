@@ -5,6 +5,7 @@ metadata:
   namespace: kit-system
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: kit
@@ -20,7 +21,7 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "if [ ! -f /var/kit/mount.init/kit.git/HEAD ]; then cp -r /var/kit/mount/kit.git /var/kit/mount.init/; fi"
+            - "if [ ! -f /var/kit/mount.init/kit.git/HEAD ]; then cp -r /var/kit/mount/kit.git /var/kit/mount.init/; chown -R git:git /var/kit/mount.init/kit.git; fi"
           volumeMounts:
             - name: kit-volume
               mountPath: /var/kit/mount.init

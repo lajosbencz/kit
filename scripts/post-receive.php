@@ -1,14 +1,16 @@
 <?php
 
 const REF_NAME = 'refs/heads/master';
-const PATH_CLONE = '/var/kit/clone';
 const LOCK_RETRY = 100;
 const LOCK_WAIT = 3;
 
+$PATH_KIT = getenv('PATH_KIT') ? : '/var/kit';
+$PATH_CLONE = $PATH_KIT . '/clone';
+
 $lockN = 0;
 do {
-    if (!is_dir(PATH_CLONE)) {
-        mkdir(PATH_CLONE);
+    if (!is_dir($PATH_CLONE)) {
+        mkdir($PATH_CLONE);
         break;
     }
     if ($lockN >= LOCK_RETRY) {
@@ -90,11 +92,11 @@ try {
         $execCmd("kubectl create namespace ${namespace}");
     }
 
-    $oldPath = PATH_CLONE . '/old';
-    `git clone -q /kit.git ${oldPath} && git --git-dir=${oldPath}/.git checkout -q -f ${oldRef}`;
+    $oldPath = $PATH_CLONE . '/old';
+    `git clone -q ${PATH_KIT}/mount/kit.git ${oldPath} && git --git-dir=${oldPath}/.git checkout -q -f ${oldRef}`;
 
-    $newPath = PATH_CLONE . '/new';
-    `git clone -q /kit.git ${newPath} && git --git-dir=${newPath}/.git checkout -q -f ${newRef}`;
+    $newPath = $PATH_CLONE . '/new';
+    `git clone -q ${PATH_KIT}/mount/kit.git ${newPath} && git --git-dir=${newPath}/.git checkout -q -f ${newRef}`;
 
     foreach ($changedCharts as $changedChart) {
         foreach (glob("${newPath}/helm/deployments/*", GLOB_ONLYDIR) as $namespacePath) {
@@ -154,7 +156,7 @@ try {
     $error = $e;
 }
 
-echo shell_exec("rm -fr " . PATH_CLONE);
+echo shell_exec("rm -fr " . $PATH_CLONE);
 
 if ($error instanceof \Throwable) {
     throw $error;
