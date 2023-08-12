@@ -10,7 +10,8 @@ ARG PATH_SSH=${PATH_KIT}/ssh
 ARG PATH_MOUNT=${PATH_KIT}/mount
 ARG PATH_REPO=${PATH_MOUNT}/kit.git
 
-ENV KUBECONFIG = ${PATH_KIT}/kubeconfig
+ENV PATH_KIT=${PATH_KIT}
+ENV KUBECONFIG=${PATH_KIT}/kubeconfig
 
 RUN set -ex; \
     apk add --no-cache \
