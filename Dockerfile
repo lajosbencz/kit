@@ -69,7 +69,7 @@ RUN git init --bare ${PATH_REPO}
 RUN ln -s ${PATH_KIT}/scripts/post-receive ${PATH_REPO}/hooks/post-receive
 
 COPY ./scripts ${PATH_KIT}/scripts
-COPY --chmod=600 ${PATH_KIT}/scripts/kubeconfig ${PATH_KIT}/
+COPY --chmod=600 ./scripts/kubeconfig ${PATH_KIT}/
 
 RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
 

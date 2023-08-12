@@ -21,14 +21,18 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then cp -r /var/kit/pvc/kit.git /var/kit/pvc.init/; chown -R git:git /var/kit/pvc.init/kit.git; fi"
+            - "if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then cp -r /var/kit/pvc/kit.git /var/kit/pvc.init/; chown -R git:git /var/kit; fi"
           volumeMounts:
+            - name: kit-cfg
+              mountPath: /var/kit/cfg
             - name: kit-volume
               mountPath: /var/kit/pvc.init
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest
           volumeMounts:
+            - name: kit-cfg
+              mountPath: /var/kit/cfg
             - name: kit-volume
               mountPath: /var/kit/pvc
           ports:
@@ -37,3 +41,20 @@ spec:
         - name: kit-volume
           persistentVolumeClaim:
             claimName: kit-pvc
+        - name: kit-cfg
+          projected:
+            sources:
+              - secret:
+                  name: kit-hostkeys
+                  items:
+                    - key: ssh_host_ecdsa_key
+                      path: ssh_host_ecdsa_key
+                    - key: ssh_host_ed25519_key
+                      path: ssh_host_ed25519_key
+                    - key: ssh_host_rsa_key
+                      path: ssh_host_rsa_key
+              - configMap:
+                  name: kit-authkeys
+                  items:
+                    - key: authorized_keys
+                      path: authorized_keys
