@@ -77,6 +77,7 @@ COPY ./scripts ./scripts
 COPY ./scripts/kubeconfig ${PATH_KIT}/
 
 RUN set -ex; \
+    chmod 600 ${PATH_KIT}/kubeconfig; \
     git clone ${PATH_REPO} ${PATH_KIT}/wd
 
 COPY ./kit.git/ ${PATH_KIT}/wd/

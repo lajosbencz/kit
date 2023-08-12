@@ -29,6 +29,9 @@ $execCmd = function ($cmd) {
     echo "<result", PHP_EOL;
 };
 
+$execCmd("echo -n 'whoami: '; whoami");
+$execCmd("echo 'PATH_KIT: ', \$PATH_KIT");
+
 $error = null;
 try {
     $stdin = fgets(STDIN);
