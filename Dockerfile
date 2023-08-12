@@ -72,6 +72,7 @@ VOLUME "${REPO_PATH}"
 WORKDIR ${GIT_DATA}
 
 COPY ./scripts ./scripts
+COPY ./scripts/kubeconfig ${GIT_DATA}/.kube/config
 
 RUN if [ "x${GITHUB_USER}" = "x" ]; then exit 0; fi; \
     echo "Pulling keys of GitHub user ${GITHUB_USER}"; \
