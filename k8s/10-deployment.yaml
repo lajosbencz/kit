@@ -17,16 +17,19 @@ spec:
       initContainers:
         - name: init-pvc
           image: ghcr.io/lajosbencz/kit:latest
-          command: ["sh", "-c", "if [ ! -f /kit.git.pvc/HEAD ]; then cp -r /kit.git /kit.git.pvc; fi"]
+          command:
+            - "sh"
+            - "-c"
+            - "if [ ! -f /var/kit/mount.init/kit.git/HEAD ]; then cp -r /var/kit/mount/kit.git /var/kit/mount.init/; fi"
           volumeMounts:
             - name: kit-volume
-              mountPath: /var/kit/kit.git.pvc
+              mountPath: /var/kit/mount.init
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest
           volumeMounts:
             - name: kit-volume
-              mountPath: /kit.git
+              mountPath: /var/kit/mount
           ports:
             - containerPort: 22
       volumes:

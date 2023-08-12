@@ -95,4 +95,4 @@ RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
 
 EXPOSE 22
 
-CMD [ "multirun", "./scripts/cmd.sh" ]
+CMD [ "multirun", "${PATH_KIT}/scripts/cmd.sh" ]
