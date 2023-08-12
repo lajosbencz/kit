@@ -63,7 +63,10 @@ Match user git\n\
 COPY ./scripts ${PATH_KIT}/scripts
 COPY --chmod=600 ./scripts/kubeconfig ${PATH_KIT}/
 
-RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
+RUN set -ex; \
+    chown -R ${USER}:${GROUP} ${PATH_KIT}; \
+    chmod -R 600 ${PATH_AUTHK}; \
+    chmod -R 600 ${PATH_HOSTK}
 
 EXPOSE 2222
 

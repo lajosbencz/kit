@@ -23,10 +23,11 @@ spec:
           command:
             - "sh"
             - "-c"
-            - >-
+            - |
               if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then
                 git init --bare /var/kit/pvc.init/kit.git
                 cp /var/kit/scripts/post-receive /var/kit/pvc.init/kit.git/hooks/
+                chmod +x /var/kit/pvc.init/kit.git/hooks/post-receive
               fi
               chown -R git:git /var/kit/pvc.init
           volumeMounts:
@@ -53,8 +54,20 @@ spec:
         - name: kit-hostkeys
           secret:
             secretName: kit-hostkeys
-            defaultMode: 384
+            items:
+              - key: ssh_host_rsa_key
+                path: ssh_host_rsa_key
+                mode: 384
+              - key: ssh_host_ed25519_key
+                path: ssh_host_ed25519_key
+                mode: 384
+              - key: ssh_host_ecdsa_key
+                path: ssh_host_ecdsa_key
+                mode: 384
         - name: kit-authkeys
           configMap:
             name: kit-authkeys
-            defaultMode: 384
+            items:
+              - key: authorized_keys
+                path: authorized_keys
+                mode: 384
