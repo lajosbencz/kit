@@ -12,6 +12,9 @@ function parse_env($envFilePath)
     foreach (file($envFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
         [$key, $val] = explode('=', $line, 2);
         $val = trim($val, "'");
+        if($key === 'IFS' || $key === "'") {
+            continue;
+        }
         $l = "$key=$val";
         echo "env line: ", $l, PHP_EOL;
         putenv($l);
