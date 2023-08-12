@@ -4,9 +4,13 @@ const REF_NAME = 'refs/heads/master';
 const LOCK_RETRY = 100;
 const LOCK_WAIT = 3;
 
-$PATH_KIT = getenv('PATH_KIT') ?: '/var/kit';
-$PATH_PVC = getenv('PATH_PVC') ?: $PATH_KIT . '/pvc';
-$PATH_REPO = getenv('PATH_PVC') ?: $PATH_PVC . '/kit.git';
+//@todo
+//$PATH_KIT = getenv('PATH_KIT') ?: '/var/kit';
+//$PATH_PVC = getenv('PATH_PVC') ?: $PATH_KIT . '/pvc';
+//$PATH_REPO = getenv('PATH_PVC') ?: $PATH_PVC . '/kit.git';
+$PATH_KIT = '/var/kit';
+$PATH_PVC = $PATH_KIT . '/pvc';
+$PATH_REPO = $PATH_PVC . '/kit.git';
 $PATH_CLONE = $PATH_KIT . '/clone';
 
 $lockN = 0;
