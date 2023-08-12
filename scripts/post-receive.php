@@ -11,6 +11,10 @@ if (is_file(PATH_ENV)) {
     while (false === $file->eof()) {
         $line = trim($file->fgets());
         echo 'env line: ', $line, PHP_EOL;
+        preg_match("/^([^=]+)='([^']*)'$/i", $line, $lineMath);
+        if($lineMath) {
+            $line = $lineMath[1] . '=' . $lineMath[2];
+        }
         if(strlen($line) > 1) {
             if($line == 'IFS=\'') {
                 $line = "IFS='\n'";
