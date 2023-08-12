@@ -9,17 +9,11 @@ function parse_env($envFilePath)
     if (!is_readable($envFilePath)) {
         throw new RuntimeException('cannot read file: ' . $envFilePath);
     }
-    $f = new SplFileObject($envFilePath);
-    while($f->eof() === false) {
-        $l = trim($f->fgets());
-        if(substr($l, -1) == "'") {
-            do {
-                $nl = $f->fgets();
-                $l .= "\n".trim($nl);
-            } while($f->eof() === false && substr($nl, 1) !== "'");
-        }
-        $l = preg_replace("/^([^=]+)='([^']*)'$/m", '\1=\2', $l);
-        echo "env line:", $l, PHP_EOL;
+    foreach (file($envFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        [$key, $val] = explode('=', $line, 2);
+        $val = trim($val, "'");
+        $l = "$key=$val";
+        echo "env line: ", $l, PHP_EOL;
         putenv($l);
     }
 }
