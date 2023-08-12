@@ -5,15 +5,22 @@ ARG USER=git
 ARG GROUP=git
 ARG PASSWORD="12345"
 ARG PATH_KIT=/var/kit
-ARG PATH_CERTS=${PATH_KIT}/certs
-ARG PATH_SSH=${PATH_KIT}/ssh
-ARG PATH_MOUNT=${PATH_KIT}/mount
-ARG PATH_REPO=${PATH_MOUNT}/kit.git
+ARG PATH_CFG=${PATH_KIT}/cfg
+ARG PATH_PVC=${PATH_KIT}/pvc
+ARG PATH_REPO=${PATH_PVC}/kit.git
 
 ENV PATH_KIT=${PATH_KIT}
+ENV PATH_CFG=${PATH_CFG}
+ENV PATH_PVC=${PATH_PVC}
+ENV PATH_REPO=${PATH_REPO}
+
 ENV KUBECONFIG=${PATH_KIT}/kubeconfig
 
+WORKDIR /root
+
 RUN set -ex; \
+    mkdir -p ${PATH_CFG} \
+             ${PATH_REPO}; \
     apk add --no-cache \
         openssl \
         php82 \
@@ -24,77 +31,51 @@ RUN set -ex; \
     ln -s /usr/bin/php82 /usr/bin/php; \
     rm /etc/motd
 
-WORKDIR /root
+RUN if [ "x${GITHUB_USER}" = "x" ]; then exit 0; fi; \
+    echo "Pulling keys of GitHub user ${GITHUB_USER}"; \
+    set -ex; \
+    touch ${PATH_CFG}/authorized_keys; \
+    curl -f https://github.com/${GITHUB_USER}.keys | tee -a ${PATH_CFG}/authorized_keys
 
 RUN set -ex; \
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
     chmod +x kubectl; \
     mv kubectl /usr/local/bin/; \
-    curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh
-
-RUN set -ex; \
+    curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh; \
+    \
     addgroup "${GROUP}"; \
     adduser \
         --gecos "Git User" \
         --ingroup "${GROUP}" \
-        --home "${PATH_MOUNT}" \
+        --home "${PATH_PVC}" \
         --disabled-password \
         --shell "$(which git-shell)" \
         "${USER}" ; \
     echo "${USER}:${PASSWORD}" | chpasswd; \
     echo -e "\
+HostKey ${PATH_CFG}/ssh_host_rsa_key\n\
+HostKey ${PATH_CFG}/ssh_host_ecdsa_key\n\
+HostKey ${PATH_CFG}/ssh_host_ed25519_key\n\
 PasswordAuthentication no\n\
 Match user git\n\
-   AuthorizedKeysFile ${PATH_SSH}/authorized_keys\n\
+   AuthorizedKeysFile ${PATH_CFG}/authorized_keys\n\
 " \
-    >> /etc/ssh/sshd_config
+    >> /etc/ssh/sshd_config; \
+   ssh-keygen -A; \
+   mv /etc/ssh/ssh_host* ${PATH_CFG}
 
-RUN set -ex; \
-    mkdir -p ${PATH_CERTS} \
-             ${PATH_SSH} \
-             ${PATH_REPO}; \
-    cd ${PATH_REPO}; \
-    git init --bare
+RUN git init --bare ${PATH_REPO}
 
-RUN if [ "x${GITHUB_USER}" = "x" ]; then exit 0; fi; \
-    echo "Pulling keys of GitHub user ${GITHUB_USER}"; \
-    set -ex; \
-    ssh-keygen -A; \
-    touch ${PATH_SSH}/authorized_keys; \
-    curl -f https://github.com/${GITHUB_USER}.keys | tee -a ${PATH_SSH}/authorized_keys
-
-#COPY ./scripts/post-receive ${REPO_PATH}/hooks/
-#RUN chmod +x ${REPO_PATH}/hooks/post-receive
 RUN ln -s ${PATH_KIT}/scripts/post-receive ${PATH_REPO}/hooks/post-receive
 
-VOLUME "${PATH_CERTS}"
-VOLUME "${PATH_SSH}"
-VOLUME "${PATH_MOUNT}"
-
-WORKDIR ${PATH_KIT}
-
-COPY ./scripts ./scripts
-COPY ./scripts/kubeconfig ${PATH_KIT}/
-
-RUN set -ex; \
-    chmod 600 ${PATH_KIT}/kubeconfig; \
-    git clone ${PATH_REPO} ${PATH_KIT}/wd
-
-COPY ./kit.git/ ${PATH_KIT}/wd/
-
-RUN set -ex; \
-    git config --global user.email "kit@lazos.me"; \
-    git config --global user.name "kit"; \
-    cd ${PATH_KIT}/wd; \
-    git add .; \
-    git commit -m 'kit'; \
-    git push; \
-    rm -fr ${PATH_KIT}/wd
-
-WORKDIR ${PATH_MOUNT}
+COPY ./scripts ${PATH_KIT}/scripts
+COPY --chmod=600 ${PATH_KIT}/scripts/kubeconfig ${PATH_KIT}/
 
 RUN chown -R ${USER}:${GROUP} ${PATH_KIT}
 
 EXPOSE 22
+
+VOLUME "${PATH_CFG}"
+VOLUME "${PATH_PVC}"
 
 CMD [ "multirun", "${PATH_KIT}/scripts/cmd.sh" ]

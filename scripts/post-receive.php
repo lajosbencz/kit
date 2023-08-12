@@ -5,6 +5,8 @@ const LOCK_RETRY = 100;
 const LOCK_WAIT = 3;
 
 $PATH_KIT = getenv('PATH_KIT') ? : '/var/kit';
+$PATH_PVC = getenv('PATH_PVC') ? : $PATH_KIT . '/pvc';
+$PATH_REPO = getenv('PATH_PVC') ? : $PATH_PVC . '/kit.git';
 $PATH_CLONE = $PATH_KIT . '/clone';
 
 $lockN = 0;
@@ -29,14 +31,15 @@ $execCmd = function ($cmd) {
     echo "<result", PHP_EOL;
 };
 
-$execCmd("echo -n 'whoami: '; whoami");
-$execCmd("echo 'PATH_KIT: ', \$PATH_KIT");
+$execCmd('echo whoami $(whoami)');
+$execCmd('echo KUBECONFIG $KUBECONFIG');
+$execCmd('echo PATH_REPO $PATH_REPO');
 
 $error = null;
 try {
     $stdin = fgets(STDIN);
 
-    file_put_contents("post-receive.txt", $stdin);
+    file_put_contents($PATH_KIT . "/post-receive.txt", $stdin);
 
     $commitMsg = '';
     $changedFiles = [];
@@ -96,10 +99,10 @@ try {
     }
 
     $oldPath = $PATH_CLONE . '/old';
-    `git clone -q ${PATH_KIT}/mount/kit.git ${oldPath} && git --git-dir=${oldPath}/.git checkout -q -f ${oldRef}`;
+    `git clone -q ${PATH_REPO} ${oldPath} && git --git-dir=${oldPath}/.git checkout -q -f ${oldRef}`;
 
     $newPath = $PATH_CLONE . '/new';
-    `git clone -q ${PATH_KIT}/mount/kit.git ${newPath} && git --git-dir=${newPath}/.git checkout -q -f ${newRef}`;
+    `git clone -q ${PATH_REPO} ${newPath} && git --git-dir=${newPath}/.git checkout -q -f ${newRef}`;
 
     foreach ($changedCharts as $changedChart) {
         foreach (glob("${newPath}/helm/deployments/*", GLOB_ONLYDIR) as $namespacePath) {

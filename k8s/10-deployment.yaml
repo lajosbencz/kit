@@ -21,16 +21,16 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "if [ ! -f /var/kit/mount.init/kit.git/HEAD ]; then cp -r /var/kit/mount/kit.git /var/kit/mount.init/; chown -R git:git /var/kit/mount.init/kit.git; fi"
+            - "if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then cp -r /var/kit/pvc/kit.git /var/kit/pvc.init/; chown -R git:git /var/kit/pvc.init/kit.git; fi"
           volumeMounts:
             - name: kit-volume
-              mountPath: /var/kit/mount.init
+              mountPath: /var/kit/pvc.init
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest
           volumeMounts:
             - name: kit-volume
-              mountPath: /var/kit/mount
+              mountPath: /var/kit/pvc
           ports:
             - containerPort: 22
       volumes:
