@@ -4,9 +4,9 @@ const REF_NAME = 'refs/heads/master';
 const LOCK_RETRY = 100;
 const LOCK_WAIT = 3;
 
-$PATH_KIT = getenv('PATH_KIT') ? : '/var/kit';
-$PATH_PVC = getenv('PATH_PVC') ? : $PATH_KIT . '/pvc';
-$PATH_REPO = getenv('PATH_PVC') ? : $PATH_PVC . '/kit.git';
+$PATH_KIT = getenv('PATH_KIT') ?: '/var/kit';
+$PATH_PVC = getenv('PATH_PVC') ?: $PATH_KIT . '/pvc';
+$PATH_REPO = getenv('PATH_PVC') ?: $PATH_PVC . '/kit.git';
 $PATH_CLONE = $PATH_KIT . '/clone';
 
 $lockN = 0;
@@ -27,7 +27,11 @@ do {
 $execCmd = function ($cmd) {
     echo "exec: [$cmd]", PHP_EOL;
     echo "result>", PHP_EOL;
-    `$cmd`;
+    $code = 0;
+    passthru($cmd, $code);
+    if ($code <> 0) {
+        throw new RuntimeException('failed to execute: ' . $cmd);
+    }
     echo "<result", PHP_EOL;
 };
 
@@ -65,6 +69,8 @@ try {
         }
     }
 
+    $firstCommit = $oldRef === '0000000000000000000000000000000000000000';
+
     $changedCharts = [];
     $changedHelms = [];
     $changedK8s = [];
@@ -99,7 +105,9 @@ try {
     }
 
     $oldPath = $PATH_CLONE . '/old';
-    `git clone -q ${PATH_REPO} ${oldPath} && git --git-dir=${oldPath}/.git checkout -q -f ${oldRef}`;
+    if (!$firstCommit) {
+        `git clone -q ${PATH_REPO} ${oldPath} && git --git-dir=${oldPath}/.git checkout -q -f ${oldRef}`;
+    }
 
     $newPath = $PATH_CLONE . '/new';
     `git clone -q ${PATH_REPO} ${newPath} && git --git-dir=${newPath}/.git checkout -q -f ${newRef}`;
@@ -145,7 +153,7 @@ try {
     foreach ($changedK8s as $namespace => $changedFiles) {
         foreach ($changedFiles as $changedFile) {
             $newFile = "${newPath}/$changedFile";
-            if (!file_exists($newFile)) {
+            if (!file_exists($newFile) && !$firstCommit) {
                 $oldFile = "${oldPath}/$changedFile";
                 $execCmd(
                     "kubectl delete --namespace ${namespace} -f ${oldFile}"
