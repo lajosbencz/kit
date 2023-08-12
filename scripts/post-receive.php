@@ -15,10 +15,10 @@ function parse_env($envFilePath)
         if(substr($l, -1) == "'") {
             do {
                 $nl = $f->fgets();
-                $l .= "\n".$nl;
+                $l .= "\n".trim($nl);
             } while($f->eof() === false && substr($nl, 1) !== "'");
         }
-        $l = preg_replace("/^([^=]+)='([^']+)'$/m", '\1=\2', $l);
+        $l = preg_replace("/^([^=]+)='([^']*)'$/m", '\1=\2', $l);
         echo "env line:", $l, PHP_EOL;
         putenv($l);
     }

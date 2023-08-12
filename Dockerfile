@@ -24,6 +24,7 @@ RUN set -ex; \
              ${PATH_AUTHK} \
              ${PATH_REPO}; \
     apk add --no-cache \
+        vim \
         openssl \
         php82 \
         multirun \
