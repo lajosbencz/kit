@@ -41,12 +41,13 @@ RUN set -ex; \
     \
     echo -e "\
 Port 2222\n\
+PidFile ${PATH_KIT}/sshd.pid\n\
 HostKey ${PATH_HOSTK}/ssh_host_rsa_key\n\
 HostKey ${PATH_HOSTK}/ssh_host_ecdsa_key\n\
 HostKey ${PATH_HOSTK}/ssh_host_ed25519_key\n\
 PasswordAuthentication no\n\
 ChallengeResponseAuthentication no\n\
-UsePAM no\n\
+#UsePAM no\n\
 PermitRootLogin no\n\
 AllowUsers git\n\
 Match user git\n\
