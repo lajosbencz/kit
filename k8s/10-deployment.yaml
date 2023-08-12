@@ -38,11 +38,15 @@ spec:
           image: ghcr.io/lajosbencz/kit:latest
           securityContext:
             runAsUser: 1000
+            runAsGroup: 1000
           volumeMounts:
             - name: kit-hostkeys
               mountPath: /var/kit/hostkeys
+              readOnly: true
             - name: kit-authkeys
               mountPath: /var/kit/authkeys
+              subPath: authorized_keys
+              readOnly: true
             - name: kit-volume
               mountPath: /var/kit/pvc
           ports:
@@ -66,6 +70,3 @@ spec:
           configMap:
             name: kit-authkeys
             defaultMode: 0600
-            items:
-              - key: authorized_keys
-                path: own/authorized_keys
