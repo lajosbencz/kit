@@ -21,9 +21,9 @@ if (is_file(PATH_ENV)) {
     }
 }
 
-$PATH_KIT = getenv('PATH_KIT') ?: '/var/kit';
-$PATH_PVC = getenv('PATH_PVC') ?: $PATH_KIT . '/pvc';
-$PATH_REPO = getenv('PATH_PVC') ?: $PATH_PVC . '/kit.git';
+$PATH_KIT = trim(getenv('PATH_KIT'), "'") ?: '/var/kit';
+$PATH_PVC = trim(getenv('PATH_PVC'), "'") ?: $PATH_KIT . '/pvc';
+$PATH_REPO = trim(getenv('PATH_PVC'), "'") ?: $PATH_PVC . '/kit.git';
 $PATH_CLONE = $PATH_KIT . '/clone';
 
 $lockN = 0;
