@@ -42,14 +42,27 @@ do {
     sleep(LOCK_WAIT);
 } while ($lockN++ < LOCK_RETRY);
 
+function exec_cmd($cmd, &$stdout=null, &$stderr=null): int {
+    $proc = proc_open($cmd,[
+        1 => ['pipe','w'],
+        2 => ['pipe','w'],
+    ],$pipes, null, $_ENV);
+    $stdout = stream_get_contents($pipes[1]);
+    fclose($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+    return proc_close($proc);
+}
 
 $execCmd = function ($cmd) {
     echo "exec: [$cmd]", PHP_EOL;
     echo "result>", PHP_EOL;
-    $code = 0;
-    passthru($cmd, $code);
+    $stdout = '';
+    $stderr = '';
+    $code = exec_cmd($cmd, $stdout, $stderr);
+    echo $stdout;
     if ($code <> 0) {
-        throw new RuntimeException('failed to execute: ' . $cmd);
+        throw new RuntimeException($stderr);
     }
     echo "<result", PHP_EOL;
 };
