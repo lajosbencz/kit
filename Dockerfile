@@ -45,6 +45,10 @@ HostKey ${PATH_HOSTK}/ssh_host_rsa_key\n\
 HostKey ${PATH_HOSTK}/ssh_host_ecdsa_key\n\
 HostKey ${PATH_HOSTK}/ssh_host_ed25519_key\n\
 PasswordAuthentication no\n\
+ChallengeResponseAuthentication no\n\
+UsePAM no\n\
+PermitRootLogin no\n\
+AllowUsers git\n\
 Match user git\n\
    AuthorizedKeysFile ${PATH_AUTHK}/authorized_keys\n\
 " \
@@ -67,6 +71,8 @@ RUN set -ex; \
     chown -R ${USER}:${GROUP} ${PATH_KIT}; \
     chmod -R 600 ${PATH_AUTHK}; \
     chmod -R 600 ${PATH_HOSTK}
+
+WORKDIR ${PATH_KIT}
 
 EXPOSE 2222
 
