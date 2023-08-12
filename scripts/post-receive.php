@@ -30,21 +30,17 @@ do {
 } while ($lockN++ < LOCK_RETRY);
 
 $execCmd = function ($cmd) {
-    echo "exec: [$cmd]", PHP_EOL;
-    echo "result>", PHP_EOL;
+//    echo "exec: [$cmd]", PHP_EOL;
+//    echo "result>", PHP_EOL;
     $stdout = '';
     $stderr = '';
     $code = exec_cmd($cmd, $stdout, $stderr);
-    echo $stdout;
+//    echo $stdout;
     if ($code <> 0) {
         throw new RuntimeException($stderr);
     }
-    echo "<result", PHP_EOL;
+//    echo "<result", PHP_EOL;
 };
-
-$execCmd('echo whoami $(whoami)');
-$execCmd('echo KUBECONFIG $KUBECONFIG');
-$execCmd('echo PATH_REPO $PATH_REPO');
 
 $error = null;
 try {
@@ -108,8 +104,8 @@ try {
     foreach ($allNamespaces as $namespace) {
         try {
             $execCmd("kubectl create namespace ${namespace}");
-        } catch(\Throwable $e) {
-            if(strpos($e->getMessage(), 'AlreadyExists') === false) {
+        } catch (\Throwable $e) {
+            if (strpos($e->getMessage(), 'AlreadyExists') === false) {
                 throw $e;
             }
         }
@@ -147,16 +143,24 @@ try {
                 $chartPath = "${newPath}/helm/charts/${chartName}";
                 $valuesPath = "${newPath}/helm/deployments/${namespace}/${name}/${chartName}.yaml";
                 if (!file_exists($valuesPath)) {
-                    $execCmd("helm delete --namespace ${namespace} ${name}");
+                    try {
+                        $execCmd("helm delete --namespace ${namespace} ${name}");
+                    } catch (\Throwable $e) {
+                        echo "failed to delete helm deployment {$chartName}:${name}: ", $e->getMessage(), PHP_EOL;
+                    }
                     continue;
                 }
-                $execCmd(
-                    "helm upgrade --install --create-namespace " .
-                    "--namespace ${namespace} " .
-                    "${name} " .
-                    "${chartPath} " .
-                    "-f ${valuesPath}"
-                );
+                try {
+                    $execCmd(
+                        "helm upgrade --install --create-namespace " .
+                        "--namespace ${namespace} " .
+                        "${name} " .
+                        "${chartPath} " .
+                        "-f ${valuesPath}"
+                    );
+                } catch (\Throwable $e) {
+                    echo "failed deploy helm {$chartName}:${name}: ", $e->getMessage(), PHP_EOL;
+                }
             }
         }
     }
@@ -166,14 +170,22 @@ try {
             $newFile = "${newPath}/$changedFile";
             if (!file_exists($newFile) && !$firstCommit) {
                 $oldFile = "${oldPath}/$changedFile";
-                $execCmd(
-                    "kubectl delete --namespace ${namespace} -f ${oldFile}"
-                );
+                try {
+                    $execCmd(
+                        "kubectl delete --namespace ${namespace} -f ${oldFile}"
+                    );
+                } catch (\Throwable $e) {
+                    echo $e->getMessage(), PHP_EOL;
+                }
                 continue;
             }
-            $execCmd(
-                "kubectl apply --namespace ${namespace} -f ${newFile}"
-            );
+            try {
+                $execCmd(
+                    "kubectl apply --namespace ${namespace} -f ${newFile}"
+                );
+            } catch (\Throwable $e) {
+                echo $e->getMessage(), PHP_EOL;
+            }
         }
     }
 
@@ -181,7 +193,11 @@ try {
     $error = $e;
 }
 
-echo shell_exec("rm -fr " . $PATH_CLONE);
+try {
+    $execCmd("rm -fr " . $PATH_CLONE);
+} catch (\Throwable $e) {
+    echo $e->getMessage(), PHP_EOL;
+}
 
 if ($error instanceof \Throwable) {
     throw $error;
