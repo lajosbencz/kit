@@ -9,7 +9,11 @@ const PATH_ENV = '/var/kit/env';
 if (is_file(PATH_ENV)) {
     $file = new \SplFileObject(PATH_ENV);
     while (false === $file->eof()) {
-        putenv(trim($file->fgets()));
+        $line = trim($file->fgets());
+        echo 'env line: ', $line, PHP_EOL;
+        if(strlen($line) > 1) {
+            putenv($line);
+        }
     }
 }
 
