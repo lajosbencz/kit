@@ -16,7 +16,9 @@ spec:
     spec:
       serviceAccountName: kit-account
       securityContext:
-        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       initContainers:
         - name: init-pvc
           image: ghcr.io/lajosbencz/kit:latest
@@ -29,24 +31,17 @@ spec:
                 cp /var/kit/scripts/post-receive /var/kit/pvc.init/kit.git/hooks/
                 chmod +x /var/kit/pvc.init/kit.git/hooks/post-receive
               fi
-              chown -R git:git /var/kit/pvc.init
           volumeMounts:
             - name: kit-volume
               mountPath: /var/kit/pvc.init
       containers:
         - name: kit
           image: ghcr.io/lajosbencz/kit:latest
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
           volumeMounts:
             - name: kit-hostkeys
               mountPath: /var/kit/hostkeys
-              readOnly: true
             - name: kit-authkeys
               mountPath: /var/kit/authkeys
-              subPath: authorized_keys
-              readOnly: true
             - name: kit-volume
               mountPath: /var/kit/pvc
           ports:
@@ -70,3 +65,6 @@ spec:
           configMap:
             name: kit-authkeys
             defaultMode: 0600
+            items:
+              - key: authorized_keys
+                path: authorized_keys

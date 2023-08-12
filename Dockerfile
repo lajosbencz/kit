@@ -73,6 +73,8 @@ RUN set -ex; \
     chmod -R 600 ${PATH_AUTHK}; \
     chmod -R 600 ${PATH_HOSTK}
 
+USER 1000:1000
+
 WORKDIR ${PATH_KIT}
 
 EXPOSE 2222
