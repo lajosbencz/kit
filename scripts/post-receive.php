@@ -4,6 +4,28 @@ const REF_NAME = 'refs/heads/master';
 const LOCK_RETRY = 100;
 const LOCK_WAIT = 3;
 
+function parse_env($envFilePath)
+{
+    if (!is_readable($envFilePath)) {
+        throw new RuntimeException('cannot read file: ' . $envFilePath);
+    }
+    $f = new SplFileObject($envFilePath);
+    while($f->eof() === false) {
+        $l = trim($f->fgets());
+        if(substr($l, -1) == "'") {
+            do {
+                $nl = $f->fgets();
+                $l .= "\n".$nl;
+            } while($f->eof() === false && substr($nl, 1) !== "'");
+        }
+        $l = preg_replace("/^([^=]+)='([^']+)'$/m", '\1=\2', $l);
+        echo "env line:", $l, PHP_EOL;
+        putenv($l);
+    }
+}
+
+parse_env("/var/kit/env");
+
 $PATH_KIT = getenv('PATH_KIT') ?: '/var/kit';
 $PATH_PVC = getenv('PATH_PVC') ?: $PATH_KIT . '/pvc';
 $PATH_REPO = getenv('PATH_PVC') ?: $PATH_PVC . '/kit.git';
