@@ -12,6 +12,10 @@ if (is_file(PATH_ENV)) {
         $line = trim($file->fgets());
         echo 'env line: ', $line, PHP_EOL;
         if(strlen($line) > 1) {
+            if($line == 'IFS=\'') {
+                $line = "IFS='\n'";
+                $file->fgets();
+            }
             putenv($line);
         }
     }
