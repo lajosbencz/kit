@@ -49,6 +49,7 @@ RUN set -ex; \
         "${USER}" ; \
     echo "${USER}:${PASSWORD}" | chpasswd; \
     echo -e "\
+Port 2222\n\
 HostKey ${PATH_HOSTK}/ssh_host_rsa_key\n\
 HostKey ${PATH_HOSTK}/ssh_host_ecdsa_key\n\
 HostKey ${PATH_HOSTK}/ssh_host_ed25519_key\n\
@@ -57,8 +58,6 @@ Match user git\n\
    AuthorizedKeysFile ${PATH_AUTHK}/authorized_keys\n\
 " \
     >> /etc/ssh/sshd_config
-
-RUN git init --bare ${PATH_REPO}
 
 RUN ln -s ${PATH_KIT}/scripts/post-receive ${PATH_REPO}/hooks/post-receive
 
