@@ -39,15 +39,6 @@ RUN set -ex; \
     mv kubectl /usr/local/bin/; \
     curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh; \
     \
-    addgroup "${GROUP}"; \
-    adduser \
-        --gecos "Kubernetes Infrastructure Kit" \
-        --ingroup "${GROUP}" \
-        --home "${PATH_PVC}" \
-        --disabled-password \
-        --shell "$(which git-shell)" \
-        "${USER}" ; \
-    echo "${USER}:${PASSWORD}" | chpasswd; \
     echo -e "\
 Port 2222\n\
 HostKey ${PATH_HOSTK}/ssh_host_rsa_key\n\
@@ -57,9 +48,17 @@ PasswordAuthentication no\n\
 Match user git\n\
    AuthorizedKeysFile ${PATH_AUTHK}/authorized_keys\n\
 " \
-    >> /etc/ssh/sshd_config
-
-RUN ln -s ${PATH_KIT}/scripts/post-receive ${PATH_REPO}/hooks/post-receive
+    >> /etc/ssh/sshd_config; \
+    \
+    addgroup "${GROUP}"; \
+    adduser \
+        --gecos "Kubernetes Infrastructure Kit" \
+        --ingroup "${GROUP}" \
+        --home "${PATH_PVC}" \
+        --disabled-password \
+        --shell "$(which git-shell)" \
+        "${USER}" ; \
+    echo "${USER}:${PASSWORD}" | chpasswd
 
 COPY ./scripts ${PATH_KIT}/scripts
 COPY --chmod=600 ./scripts/kubeconfig ${PATH_KIT}/

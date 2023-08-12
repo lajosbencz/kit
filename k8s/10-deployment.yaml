@@ -26,6 +26,7 @@ spec:
             - >-
               if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then
                 git init --bare /var/kit/pvc.init/kit.git
+                cp /var/kit/scripts/post-receive /var/kit/pvc.init/kit.git/hooks/
               fi
               chown -R git:git /var/kit/pvc.init
           volumeMounts:
