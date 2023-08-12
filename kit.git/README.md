@@ -1,3 +1,0 @@
-# KIT
-
-### Sample repository

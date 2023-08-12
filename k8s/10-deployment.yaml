@@ -21,7 +21,7 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then cp -r /var/kit/pvc/kit.git /var/kit/pvc.init/; chown -R git:git /var/kit; fi"
+            - "if [ ! -f /var/kit/pvc.init/kit.git/HEAD ]; then cp -r /var/kit/pvc/kit.git /var/kit/pvc.init/; fi; chown -R git:git /var/kit/pvc.init"
           volumeMounts:
             - name: kit-cfg
               mountPath: /var/kit/cfg
@@ -43,6 +43,7 @@ spec:
             claimName: kit-pvc
         - name: kit-cfg
           projected:
+            defaultMode: 384
             sources:
               - secret:
                   name: kit-hostkeys

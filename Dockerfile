@@ -1,6 +1,5 @@
 FROM alpine:3.18
 
-ARG GITHUB_USER=lajosbencz
 ARG USER=git
 ARG GROUP=git
 ARG PASSWORD="12345"
@@ -31,12 +30,6 @@ RUN set -ex; \
     ln -s /usr/bin/php82 /usr/bin/php; \
     rm /etc/motd
 
-RUN if [ "x${GITHUB_USER}" = "x" ]; then exit 0; fi; \
-    echo "Pulling keys of GitHub user ${GITHUB_USER}"; \
-    set -ex; \
-    touch ${PATH_CFG}/authorized_keys; \
-    curl -f https://github.com/${GITHUB_USER}.keys | tee -a ${PATH_CFG}/authorized_keys
-
 RUN set -ex; \
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
     chmod +x kubectl; \
@@ -45,7 +38,7 @@ RUN set -ex; \
     \
     addgroup "${GROUP}"; \
     adduser \
-        --gecos "Git User" \
+        --gecos "Kubernetes Infrastructure Kit" \
         --ingroup "${GROUP}" \
         --home "${PATH_PVC}" \
         --disabled-password \
