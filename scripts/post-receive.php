@@ -30,14 +30,14 @@ do {
 } while ($lockN++ < LOCK_RETRY);
 
 $execCmd = function ($cmd) {
-//    echo "exec: [$cmd]", PHP_EOL;
+    echo "$cmd", PHP_EOL;
 //    echo "result>", PHP_EOL;
     $stdout = '';
     $stderr = '';
     $code = exec_cmd($cmd, $stdout, $stderr);
-//    echo $stdout;
+    echo $stdout;
     if ($code <> 0) {
-        throw new RuntimeException($stderr);
+        throw new RuntimeException($stderr ?: $stdout);
     }
 //    echo "<result", PHP_EOL;
 };
